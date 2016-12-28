@@ -260,26 +260,214 @@ class Core {
                 $data['step'] = "5";
                 $data['max'] = MAXSTEPS; // GIS max page number
 
+                $status = $this->get_gis_status('gis_requests');
+                if ($status != "pending") {
+                        $data['readonly'] = "readonly";
+			$data['agree'] = "checked";
+                }
 
+		$sql = "SELECT `special_passenger_details` FROM `reserve`.`contacts` WHERE `contactID` = '$_SESSION[contactID]'";
+		$result = $this->new_mysql($sql);
+		while ($row = $result->fetch_assoc()) {
+			$data['request'] = $row['special_passenger_details'];
+		}
+
+
+		$this->load_smarty($data,$template);
+	}
+
+	public function update_requests() {
+                $status = $this->get_gis_status('gis_requests');
+                if ($status == "pending") {
+
+                        $p = $_POST;
+
+                        foreach ($p as $key=>$value) {
+                                $p[$key] = $this->linkID->real_escape_string($value);
+                        }
+
+			$sql = "UPDATE `reserve`.`contacts` SET `special_passenger_details` = '$p[request]' WHERE `contactID` = '$_SESSION[contactID]'";
+
+                        $result = $this->new_mysql($sql);
+                        if ($result == "TRUE") {
+                                $sql2 = "UPDATE `gis_action` SET `gis_requests` = 'complete' WHERE `contactID` = '$_SESSION[contactID]' 
+                                AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
+                                $result2 = $this->new_mysql($sql2);
+                                ?>
+                                <script>
+                                setTimeout(function() {
+                                      window.location.replace('/transfers')
+                                }
+                                ,0);
+                                </script>
+                                <?php
+                        }
+
+                } else {
+                        // goto next page
+                        ?>
+                        <script>
+                        setTimeout(function() {
+                              window.location.replace('/transfers')
+                        }
+                        ,0);
+                        </script>
+                        <?php
+                }
+
+	}
+
+
+	public function transfers() {
+                $template = "transfers.tpl";
+                $data['step'] = "6";
+                $data['max'] = MAXSTEPS; // GIS max page number
+
+                $status = $this->get_gis_status('gis_transfers');
+                if ($status != "pending") {
+                        $data['readonly'] = "readonly";
+                }
+
+
+		// list transfers
+		$sql = "
+		SELECT
+			`l`.`title`,
+			`l`.`description`,
+			`l`.`price`
+
+		FROM
+			`line_item_billing` b,
+			`line_items` l
+
+		WHERE
+			`b`.`contactID` = '$_SESSION[contactID]'
+			AND `b`.`reservationID` = '$_SESSION[reservationID]'
+			AND `b`.`line_item_id` = `l`.`id`
+		";
+
+		$result = $this->new_mysql($sql);
+		while ($row = $result->fetch_assoc()) {
+			$html .= '
+			<div class="row top-buffer">
+				<div class="col-sm-4">'.$row['title'].'</div>
+				<div class="col-sm-4">'.$row['description'].'</div>
+				<div class="col-sm-4">$'.
+					number_format($row['price'],2,'.',',')
+				.' USD</div>
+			</div>
+			';
+			$found = "1";
+		}
+		if ($found != "1") {
+			$html .= '
+			<div class="row top-buffer">
+				<div class="col-sm-12"><i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:red"></i> 
+				<font color="#C0400"><b>You do not have any transfers. Please select at least one to continue.</b></font>
+				</div>
+			</div>
+			';
+			$data['disabled'] = 'disabled';
+		}
+
+		// get avilable transfers
+		$html .= '
+		<div class="row top-buffer">
+			<div class="col-sm-12">
+				<font color="blue"><b>The following transfers are available:</b></font>
+			</div>
+		</div>
+		';
+
+		$sql = "SELECT `id`,`title`,`description`,`price` FROM `line_items` ORDER BY `title` ASC";
+		$result = $this->new_mysql($sql);
+		while ($row = $result->fetch_assoc()) {
+                        $html .= '
+                        <div class="row top-buffer">
+                                <div class="col-sm-4">'.$row['title'].'</div>
+                                <div class="col-sm-4">'.$row['description'].'</div>
+                                <div class="col-sm-4">$'.
+                                        number_format($row['price'],2,'.',',')
+                                .' USD <input type="checkbox" name="line_item_'.$row['id'].'" value="checked"
+				onclick="document.getElementById(\'save\').disabled=false;"
+				> (Click to add)</div>
+                        </div>
+                        ';
+		}
+
+                $data['html'] = $html;
+
+                $this->load_smarty($data,$template);
+	}
+
+
+	public function update_transfers() {
+                $status = $this->get_gis_status('gis_transfers');
+                if ($status == "pending") {
+
+        	        $sql = "SELECT `id`,`title`,`description`,`price` FROM `line_items` ORDER BY `title` ASC";
+	                $result = $this->new_mysql($sql);
+                	while ($row = $result->fetch_assoc()) {
+				$i = "line_item_";
+				$i .= $row['id'];
+				$line_item = $_POST[$i];
+				if ($line_item == "checked") {
+					// insert into line items
+					// userID 15 is a system user
+					$today = date("Ymd");
+					$sql2 = "INSERT INTO `line_item_billing` (`reservationID`,`contactID`,`line_item_id`,`date_added`,`date_updated`,`userID`) VALUES
+					('$_SESSION[reservationID]','$_SESSION[contactID]','$row[id]','$today','$today','15')";
+					$result2 = $this->new_mysql($sql2);
+				}
+			}
+
+                        $sql = "UPDATE `gis_action` SET `gis_transfers` = 'complete' WHERE `contactID` = '$_SESSION[contactID]' 
+                        AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
+                        $result = $this->new_mysql($sql);
+                        ?>
+                        <script>
+                        setTimeout(function() {
+                              window.location.replace('/trip_insurance')
+                        }
+                        ,0);
+                        </script>
+                        <?php
+                } else {
+                        // goto next page
+                        ?>
+                        <script>
+                        setTimeout(function() {
+                              window.location.replace('/trip_insurance')
+                        }
+                        ,0);
+                        </script>
+                        <?php
+                }
+
+	}
+
+	public function trip_insurance() {
+                $template = "trip_insurance.tpl";
+                $data['step'] = "7";
+                $data['max'] = MAXSTEPS; // GIS max page number
+
+                $status = $this->get_gis_status('gis_trip_insurance');
+                if ($status != "pending") {
+                        $data['readonly'] = "readonly";
+                }
+
+
+		// load data
 
 
 		$this->load_smarty($data,$template);
 	}
 
 
-	public function transfers() {
-
-		print "Transfers - To Do<br>";
-
-	}
-
-
-	public function trip_insurance() {
-
-		print "Trip Insurance - To Do<br>";
+	public function update_trip_insurance() {
+		// to do
 
 	}
-
 
 	public function travel_info() {
 

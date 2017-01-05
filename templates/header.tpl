@@ -54,6 +54,8 @@ a:active {
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script> 
 
+<link rel="stylesheet" type="text/css" href="/jquery.datetimepicker.css"/ >
+
 <script>
 $(function() {
 	$( "#dob" ).datepicker({ 
@@ -68,6 +70,14 @@ $(function() {
                 changeMonth: true,
                 changeYear: true,
 		minDate: +180,
+                yearRange: "-0:+30"
+        });
+
+        $( "#date_issued" ).datepicker({ 
+                dateFormat: "mm/dd/yy",
+                changeMonth: true,
+                changeYear: true,
+                minDate: +0,
                 yearRange: "-0:+30"
         });
 });

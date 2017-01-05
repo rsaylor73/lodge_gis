@@ -451,6 +451,15 @@ class Core {
                 $data['step'] = "7";
                 $data['max'] = MAXSTEPS; // GIS max page number
 
+
+		$sql = "SELECT `insurance`,`trip_company`,`trip_policy`,`date_issued` FROM `beds` WHERE `bedID` = '$_SESSION[bedID]'";
+		$result = $this->new_mysql($sql);
+		while ($row = $result->fetch_assoc()) {
+			foreach ($row as $key=>$value) {
+				$data[$key] = $value;
+			}
+		}
+
                 $status = $this->get_gis_status('gis_trip_insurance');
                 if ($status != "pending") {
                         $data['readonly'] = "readonly";
@@ -465,13 +474,62 @@ class Core {
 
 
 	public function update_trip_insurance() {
-		// to do
+
+                $status = $this->get_gis_status('gis_trip_insurance');
+                if ($status == "pending") {
+
+                        $p = $_POST;
+
+                        foreach ($p as $key=>$value) {
+                                $p[$key] = $this->linkID->real_escape_string($value);
+                        }
+
+			$sql = "UPDATE `beds` SET `insurance` = '$p[insurance]', `trip_company` = '$p[trip_company]', `trip_policy` = '$p[trip_policy]',
+			`date_issued` = '$p[date_issued]' WHERE `bedID` = '$_SESSION[bedID]'";
+
+                        $result = $this->new_mysql($sql);
+                        if ($result == "TRUE") {
+                                $sql2 = "UPDATE `gis_action` SET `gis_trip_insurance` = 'complete' WHERE `contactID` = '$_SESSION[contactID]' 
+                                AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
+                                $result2 = $this->new_mysql($sql2);
+                                ?>
+                                <script>
+                                setTimeout(function() {
+                                      window.location.replace('/gis_confirmation')
+                                }
+                                ,0);
+                                </script>
+                                <?php
+                        }
+
+                } else {
+                        // goto next page
+                        ?>
+                        <script>
+                        setTimeout(function() {
+                              window.location.replace('/gis_confirmation')
+                        }
+                        ,0);
+                        </script>
+                        <?php
+                }
 
 	}
 
 	public function travel_info() {
+                $template = "travel_info.tpl";
+                $data['step'] = "9";
+                $data['max'] = MAXSTEPS; // GIS max page number
 
-		print "Travel Info - To Do<br>";
+                $status = $this->get_gis_status('gis_travel_info');
+                if ($status != "pending") {
+                        $data['readonly'] = "readonly";
+                }
+
+
+
+
+		$this->load_smarty($data,$template);
 
 	}
 

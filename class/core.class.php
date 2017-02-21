@@ -526,6 +526,13 @@ class Core {
                         $data['readonly'] = "readonly";
                 }
 
+		$sql = "SELECT * FROM `gis_travel_info` WHERE `contactID` = '$_SESSION[contactID]' AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        foreach ($row as $key=>$value) {
+                                $data[$key] = $value;
+                        }
+                }
 
 
 
@@ -533,10 +540,162 @@ class Core {
 
 	}
 
+	public function update_travel_info() {
+                $status = $this->get_gis_status('gis_travel_info');
+                if ($status == "pending") {
 
-	public function gis_confirmation() {
+		$p = $_POST;
+	        foreach ($p as $key=>$value) {
+		        $p[$key] = $this->linkID->real_escape_string($value);
+	        }
 
-		print "Confirmation - To Do<br>";
+		$found = "0";
+		$sql = "SELECT `id` FROM `gis_travel_info` WHERE `contactID` = '$_SESSION[contactID]' AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
+		$result = $this->new_mysql($sql);
+		while ($row = $result->fetch_assoc()) {
+			$found = "1";
+		}
+		if ($found == "1") {
+			// update
+			$sql = "UPDATE `gis_travel_info` SET `arrival_airport1` = '$p[arrival_airport1]', `arrival_airport2` = '$p[arrival_airport2]', `arrival_airport3` = 
+			'$p[arrival_airport3]', `arrival_airport4` = '$p[arrival_airport4]', `arrival_airport5` = '$p[arrival_airport5]', `arrival_airline1` = '$p[arrival_airline1]',
+			`arrival_airline2` = '$p[arrival_airline2]', `arrival_airline3` = '$p[arrival_airline3]', `arrival_airline4` = '$p[arrival_airline4]',
+			`arrival_airline5` = '$p[arrival_airline5]', `arrival_flight1` = '$p[arrival_flight1]', `arrival_flight2` = '$p[arrival_flight2]', `arrival_flight3` = 
+			'$p[arrival_flight3]', `arrival_flight4` = '$p[arrival_flight4]', `arrival_flight5` = '$p[arrival_flight5]', `arrival_date_time1` = '$p[arrival_date_time1]',
+			`arrival_date_time2` = '$p[arrival_date_time2]', `arrival_date_time3` = '$p[arrival_date_time3]', `arrival_date_time4` = '$p[arrival_date_time4]',
+			`arrival_date_time5` = '$p[arrival_date_time5]', `departure_airport1` = '$p[departure_airport1]', `departure_airport2` = '$p[departure_airport2]',
+			`departure_airport3` = '$p[departure_airport3]', `departure_airport4` = '$p[departure_airport4]', `departure_airport5` = '$p[departure_airport5]',
+			`departure_airline1` = '$p[departure_airline1]', `departure_airline2` = '$p[departure_airline2]', `departure_airline3` = '$p[departure_airline3]',
+			`departure_airline4` = '$p[departure_airline4]', `departure_airline5` = '$p[departure_airline5]', `departure_flight1` = '$p[departure_flight1]',
+			`departure_flight2` = '$p[departure_flight2]', `departure_flight3` = '$p[departure_flight3]', `departure_flight4` = '$p[departure_flight4]',
+			`departure_flight5` = '$p[departure_flight5]', `departure_date_time1` = '$p[departure_date_time1]', `departure_date_time2` = '$p[departure_date_time2]',
+			`departure_date_time3` = '$p[departure_date_time3]', `departure_date_time4` = '$p[departure_date_time4]', `departure_date_time5` = '$p[departure_date_time5]',
+			`hotel_arrival` = '$p[hotel_arrival]', `hotel_departure` = '$p[hotel_departure]' WHERE
+			`contactID` = '$_SESSION[contactID]' AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
+		} else {
+			// insert
+			$sql = "INSERT INTO `gis_travel_info`
+			(`contactID`,`reservationID`,`bedID`,`arrival_airport1`,`arrival_airport2`,`arrival_airport3`,`arrival_airport4`,`arrival_airport5`,
+			`arrival_airline1`,`arrival_airline2`,`arrival_airline3`,`arrival_airline4`,`arrival_airline5`,
+			`arrival_flight1`,`arrival_flight2`,`arrival_flight3`,`arrival_flight4`,`arrival_flight5`,
+			`arrival_date_time1`,`arrival_date_time2`,`arrival_date_time3`,`arrival_date_time4`,`arrival_date_time5`,
+			`departure_airport1`,`departure_airport2`,`departure_airport3`,`departure_airport4`,`departure_airport5`,
+			`departure_airline1`,`departure_airline2`,`departure_airline3`,`departure_airline4`,`departure_airline5`,
+			`departure_flight1`,`departure_flight2`,`departure_flight3`,`departure_flight4`,`departure_flight5`,
+			`departure_date_time1`,`departure_date_time2`,`departure_date_time3`,`departure_date_time4`,`departure_date_time5`,
+			`hotel_arrival`,`hotel_departure`)
+			VALUES
+			('$_SESSION[contactID]','$_SESSION[reservationID]','$_SESSION[bedID]','$p[arrival_airport1]','$p[arrival_airport2]','$p[arrival_airport3]',
+			'$p[arrival_airport4]','$p[arrival_airport5]',
+                        '$p[arrival_airline1]','$p[arrival_airline2]','$p[arrival_airline3]','$p[arrival_airline4]','$p[arrival_airline5]',
+                        '$p[arrival_flight1]','$p[arrival_flight2]','$p[arrival_flight3]','$p[arrival_flight4]','$p[arrival_flight5]',
+                        '$p[arrival_date_time1]','$p[arrival_date_time2]','$p[arrival_date_time3]','$p[arrival_date_time4]','$p[arrival_date_time5]',
+                        '$p[departure_airport1]','$p[departure_airport2]','$p[departure_airport3]','$p[departure_airport4]','$p[departure_airport5]',
+                        '$p[departure_airline1]','$p[departure_airline2]','$p[departure_airline3]','$p[departure_airline4]','$p[departure_airline5]',
+                        '$p[departure_flight1]','$p[departure_flight2]','$p[departure_flight3]','$p[departure_flight4]','$p[departure_flight5]',
+                        '$p[departure_date_time1]','$p[departure_date_time2]','$p[departure_date_time3]','$p[departure_date_time4]','$p[departure_date_time5]',
+                        '$p[hotel_arrival]','$p[hotel_departure]')
+			";
+		}
+                $result = $this->new_mysql($sql);
+                if ($result == "TRUE") {
+                       $sql2 = "UPDATE `gis_action` SET `gis_travel_info` = 'complete' WHERE `contactID` = '$_SESSION[contactID]' 
+                        AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
+                        $result2 = $this->new_mysql($sql2);
+                        ?>
+                        <script>
+                        setTimeout(function() {
+                              window.location.replace('/travel_info')
+                        }
+                        ,0);
+                        </script>
+                        <?php
+                        }
+
+                } else {
+                        ?>
+                        <script>
+                        setTimeout(function() {
+                              window.location.replace('/travel_info')
+                        }
+                        ,0);
+                        </script>
+                        <?php
+		}
+
+	}
+
+	public function confirmation() {
+
+                $template = "confirmation.tpl";
+                $data['step'] = "8";
+                $data['max'] = MAXSTEPS; // GIS max page number
+
+                $status = $this->get_gis_status('gis_confirmation');
+                if ($status != "pending") {
+                        $data['readonly'] = "readonly";
+                }
+
+		// guest info
+                $sql = "
+                SELECT
+                        `c`.`contactID`,
+                        `c`.`title`,
+                        `c`.`preferred_name`,
+                        `c`.`first`,
+                        `c`.`middle`,
+                        `c`.`last`,
+                        `c`.`address1`,
+                        `c`.`address2`,
+                        `c`.`city`,
+                        `c`.`state`,
+                        `c`.`province`,
+                        `c`.`zip`,
+                        `c`.`countryID`,
+                        `c`.`email`,
+                        `c`.`phone1`,
+                        `c`.`phone1_type`,
+                        `c`.`phone2`,
+                        `c`.`phone2_type`,
+                        `c`.`phone3`,
+                        `c`.`phone3_type`,
+                        `c`.`phone4`,
+                        `c`.`phone4_type`,
+                        `c`.`sex` AS 'gender',
+                        `c`.`occupation`,
+                        `c`.`passport_number`,
+                        DATE_FORMAT(`c`.`passport_exp`, '%m/%d/%Y') AS 'passport_exp',
+                        `c`.`donottext`,
+                        `c`.`nationality_countryID`,
+                        DATE_FORMAT(`c`.`date_of_birth`, '%m/%d/%Y') AS 'dob'
+                FROM
+                        `reserve`.`contacts` c
+
+                WHERE
+                        `c`.`contactID` = '$_SESSION[contactID]'
+
+                ";
+
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        foreach ($row as $key=>$value) {
+                                $data[$key] = $value;
+                        }
+		}
+
+		// get travel info
+                $sql = "SELECT * FROM `gis_travel_info` WHERE `contactID` = '$_SESSION[contactID]' AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        foreach ($row as $key=>$value) {
+                                $data[$key] = $value;
+                        }
+                }
+
+
+
+                $this->load_smarty($data,$template);
+
 
 	}
 

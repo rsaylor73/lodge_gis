@@ -32,6 +32,7 @@ a:active {
         text-decoration: none;
         color: #C00;
 }
+
 </style>
 
         <link rel="stylesheet" href="/jquery-ui-1.10.3/themes/base/jquery.ui.all.css">
@@ -148,12 +149,22 @@ $(function() {
         </tr>
         <tr>
           <td colspan="3" valign="top">
-<a href="/logout"><img src="/images/bt-logout.png" border=0 align="right"></a>
 
-<!--<a href="gis_payment.php">
-<img src="/images/icons-complete.png" width="244" height="26" align="left" />-->
-
-</td>
+	<div class="row">
+		<div class="col-sm-4">
+			<img src="/images/icons-complete.png" width="244" height="26" class="pull-left">
+		</div>
+		<div class="col-sm-6">
+			{if $resellerID eq "19"}
+			<a href="/payment"><img src="/images/visa-mastercard-logo.jpg" height="31" border="0" class="pull-right">&nbsp;
+			<img src="/images/bt-payment.png" border="0" class="pull-right"></a>
+			{/if}
+		</div>
+		<div class="col-sm-2">
+			<a href="/logout"><img src="/images/bt-logout.png" border="0" class="pull-right"></a>
+		</div>
+	</div>
+	</td>
         </tr>
     </table>
 

@@ -120,7 +120,7 @@
 				</div>
 
 				<div class="col-sm-3">
-		                        <label for="donottext" class="col-sm-3 control-label">Text Notifications:</label>
+		                        <label for="donottext" class="control-label">Text Notifications:</label>
 				</div>
 	                        <div class="col-sm-3">
 					<input type="checkbox" name="donottext" id="donottext" {$donottext} value="checked" {$readonly}> Check if you <b>DO NOT</b> wish to 

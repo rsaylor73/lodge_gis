@@ -4,6 +4,15 @@ include "include/settings.php";
 include "include/mysql.php";
 include "include/templates.php";
 
+// Define global constant - get the authorize.net account info
+$sql = "SELECT `authnet_login`,`authnet_key`,`authnet_testmode` FROM `settings` WHERE `id` = '1'";
+$result = $core->new_mysql($sql);
+while ($row = $result->fetch_assoc()) {
+        define('authnet_login',$row['authnet_login']);
+        define('authnet_key',$row['authnet_key']);
+        define('authnet_testmode',$row['authnet_testmode']);
+}
+
 $core->check_gis();
 
 // determin the action for what bubble to open
@@ -29,6 +38,7 @@ if ($show_header == "on") {
 	$data['start_date'] = $_SESSION['start_date'];
 	$data['nights'] = $_SESSION['nights'];
 	$data['reservationID'] = $_SESSION['reservationID'];
+	$data['resellerID'] = $_SESSION['resellerID'];
 	$core->load_smarty($data,$template);
 }
 // end header

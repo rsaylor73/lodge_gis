@@ -77,17 +77,20 @@ class Core {
                         	`c`.`contactID`,
 	                        `c`.`first`,
         	                `c`.`last`,
-                	        `c`.`email`
+                	        `c`.`email`,
+				`r`.`resellerID`
 
 	                FROM
         	                `beds` b,
-                	        `reserve`.`contacts` c
+                	        `reserve`.`contacts` c,
+				`reservations` r
 
 	                WHERE
         	                `b`.`bedID` = '$_GET[bedID]'
                 	        AND `b`.`gis_pw` = '$_GET[gisPW]'
 	                        AND `b`.`contactID` = '$_GET[contactID]'
         	                AND `b`.`contactID` = `c`.`contactID`
+				AND `b`.`reservationID` = `r`.`reservationID`
 	                ";
 	                $result = $this->new_mysql($sql);
 	                while ($row = $result->fetch_assoc()) {
@@ -99,6 +102,7 @@ class Core {
 				$_SESSION['first'] = $row['first'];
 				$_SESSION['last'] = $row['last'];
 				$_SESSION['email'] = $row['email'];
+				$_SESSION['resellerID'] = $row['resellerID'];
 
 				// get lodge name
 				$_SESSION['lodge'] = $this->get_lodge_name($row['inventoryID']);
@@ -681,7 +685,75 @@ class Core {
                         foreach ($row as $key=>$value) {
                                 $data[$key] = $value;
                         }
+
+			$data['nationality_country'] = $this->get_countries($row['nationality_countryID'],"1");
+			$data['country'] = $this->get_countries($row['countryID'],"1");
 		}
+
+		// emergency contact
+                $sql = "
+                SELECT
+                        `c`.`emergency_first` AS 'firstA',
+                        `c`.`emergency_last` AS 'lastA',
+                        `c`.`emergency_relationship` AS 'relationshipA',
+                        `c`.`emergency_ph_home` AS 'phone_homeA',
+                        `c`.`emergency_ph_work` AS 'phone_workA',
+                        `c`.`emergency_ph_mobile` AS 'phone_mobileA',
+                        `c`.`emergency_email` AS 'emailA',
+                        `c`.`emergency_address1` AS 'address1A',
+                        `c`.`emergency_address2` AS 'address2A',
+                        `c`.`emergency_city` AS 'cityA',
+                        `c`.`emergency_state` AS 'stateA',
+                        `c`.`emergency_zip` AS 'zipA',
+                        `c`.`emergency_countryID` AS 'countryA',
+
+                        `c`.`emergency2_first` AS 'firstB',
+                        `c`.`emergency2_last` AS 'lastB',
+                        `c`.`emergency2_relationship` AS 'relationshipB',
+                        `c`.`emergency2_ph_home` AS 'phone_homeB',
+                        `c`.`emergency2_ph_work` AS 'phone_workB',
+                        `c`.`emergency2_ph_mobile` AS 'phone_mobileB',
+                        `c`.`emergency2_email` AS 'emailB',
+                        `c`.`emergency2_address1` AS 'address1B',
+                        `c`.`emergency2_address2` AS 'address2B',
+                        `c`.`emergency2_city` AS 'cityB',
+                        `c`.`emergency2_state` AS 'stateB',
+                        `c`.`emergency2_zip` AS 'zipB',
+                        `c`.`emergency2_countryID` AS 'countryB'
+
+                FROM
+                        `reserve`.`contacts` c
+
+                WHERE
+                        `c`.`contactID` = '$_SESSION[contactID]'
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        foreach ($row as $key=>$value) {
+                                $data[$key] = $value;
+                        }
+                        $data['stateA'] = $this->get_states($row['stateA'],"1");
+                        $data['stateB'] = $this->get_states($row['stateB'],"1");
+                        $data['countryA'] = $this->get_countries($row['countryA'],"1");
+                        $data['countryB'] = $this->get_countries($row['countryB'],"1");
+
+                }
+
+		// diet
+                $sql = "SELECT `special_passenger_details` FROM `reserve`.`contacts` WHERE `contactID` = '$_SESSION[contactID]'";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        $data['request'] = $row['special_passenger_details'];
+                }
+
+		// trip insurance
+                $sql = "SELECT `insurance`,`trip_company`,`trip_policy`,`date_issued` FROM `beds` WHERE `bedID` = '$_SESSION[bedID]'";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        foreach ($row as $key=>$value) {
+                                $data[$key] = $value;
+                        }
+                }
 
 		// get travel info
                 $sql = "SELECT * FROM `gis_travel_info` WHERE `contactID` = '$_SESSION[contactID]' AND `reservationID` = '$_SESSION[reservationID]' AND `bedID` = '$_SESSION[bedID]'";
@@ -1134,34 +1206,60 @@ class Core {
 	}
 
 	// get list of countries
-	private function get_countries($country) {
-		$sql = "SELECT `countryID`,`country` FROM `countries` ORDER BY `country` ASC";
-                $result = $this->new_mysql($sql);
-		if ($country == "") {
-			$option .= "<option selected value=\"\">--Select--</option>";
+	private function get_countries($country,$stop="0") {
+
+		if ($stop == "0") {
+			$sql = "SELECT `countryID`,`country` FROM `countries` ORDER BY `country` ASC";
+        	        $result = $this->new_mysql($sql);
+			if ($country == "") {
+				$option .= "<option selected value=\"\">--Select--</option>";
+			}
+        	        while ($row = $result->fetch_assoc()) {
+				if ($country == $row['countryID']) {
+					$option .= "<option selected value=\"$row[countryID]\">$row[country]</option>";
+				} else {
+					$option .= "<option value=\"$row[countryID]\">$row[country]</option>";
+				}
+			}
 		}
-                while ($row = $result->fetch_assoc()) {
-			if ($country == $row['countryID']) {
-				$option .= "<option selected value=\"$row[countryID]\">$row[country]</option>";
-			} else {
-				$option .= "<option value=\"$row[countryID]\">$row[country]</option>";
+
+		if ($stop == "1") {
+                        $sql = "SELECT `countryID`,`country` FROM `countries` ORDER BY `country` ASC";
+                        $result = $this->new_mysql($sql);
+                        while ($row = $result->fetch_assoc()) {
+                                if ($country == $row['countryID']) {
+					$option = $row['country'];
+				}
 			}
 		}
 		return($option);
 	}
 
 	// get list of US states
-	private function get_states($state) {
-		$sql = "SELECT * FROM `reserve`.`state` ORDER BY `state_abbr` ASC";
-		$result = $this->new_mysql($sql);
-		if ($state == "") {
-			$option .= "<option selected value=\"\">--Select--</option>";
+	private function get_states($state,$type="0") {
+
+		if ($type == "0") {
+			$sql = "SELECT * FROM `reserve`.`state` ORDER BY `state_abbr` ASC";
+			$result = $this->new_mysql($sql);
+			if ($state == "") {
+				$option .= "<option selected value=\"\">--Select--</option>";
+			}
+			while ($row = $result->fetch_assoc()) {
+				if ($state == $row['state_abbr']) {
+					$option .= "<option selected>$row[state_abbr]</option>";
+				} else {
+					$option .= "<option>$row[state_abbr]</option>";
+				}
+			}
 		}
-		while ($row = $result->fetch_assoc()) {
-			if ($state == $row['state_abbr']) {
-				$option .= "<option selected>$row[state_abbr]</option>";
-			} else {
-				$option .= "<option>$row[state_abbr]</option>";
+
+		if ($type == "1") {
+                        $sql = "SELECT * FROM `reserve`.`state` ORDER BY `state_abbr` ASC";
+                        $result = $this->new_mysql($sql);
+                        while ($row = $result->fetch_assoc()) {
+                                if ($state == $row['state_abbr']) {
+					$option = $row['state_abbr'];
+				}
 			}
 		}
 		return($option);
@@ -1250,12 +1348,498 @@ class Core {
 		return($name);
 	}	
 
+	// payment
+	public function payment() {
+		if ($_SESSION['resellerID'] == "19") {
+
+			$data = $this->get_invoice_amounts();
+
+			$y1 = date("Y");
+			$y2 = $y1 + 10;
+			for ($x=$y1; $x < $y2; $x++) {
+				$exp_year .= "<option value=\"$x\">$x</option>";
+			}
+			$data['exp_year'] = $exp_year;
+
+			$template = "payment.tpl";
+			$this->load_smarty($data,$template);
+		} else {
+			$template = "error.tpl";
+			$this->load_smarty(null,$template);
+		}
+	}
+
+	// process payment
+	public function process_payment() {
+                if ($_SESSION['resellerID'] == "19") {
+
+                        $data = $this->get_invoice_amounts();
+
+			foreach($_POST as $key=>$value) {
+				$data[$key] = $value;
+			}
+			$cc_length = strlen($_POST['cc_num']);
+			$cc_last_4 = substr($_POST['cc_num'],-4);
+			$mask = $cc_length - 4;
+			for ($i=0; $i < $mask; $i++) {
+				$cc_mask .= "*";
+			}
+			$data['cc_mask'] = $cc_mask . $cc_last_4;
+			$template = "confirm_payment.tpl";
+                        $this->load_smarty($data,$template); 
+                } else {
+                        $template = "error.tpl";
+                        $this->load_smarty(null,$template);
+                }
+	}
+
+	// complete payment
+	public function confirm_payment() {
+                if ($_SESSION['resellerID'] == "19") {
+
+			require_once('class/authorizenet.class.php');
+			$a = new authorizenet_class;
+			$a->add_field('x_login', authnet_login);
+			$a->add_field('x_tran_key', authnet_key);
+			$a->add_field('x_version', '3.1');
+			$a->add_field('x_type', 'AUTH_CAPTURE');
+			if (authnet_testmode == "Yes") {
+				$a->add_field('x_test_request', 'TRUE');    // Just a test transaction
+			}
+			$a->add_field('x_relay_response', 'FALSE');
+			$a->add_field('x_delim_data', 'TRUE');
+			$a->add_field('x_delim_char', '|');
+			$a->add_field('x_encap_char', '');
+			$a->add_field('x_email_customer', 'FALSE');
+			$a->add_field('x_description', "ATSL Reservation $_SESSION[reservationID]");
+
+	                $a->add_field('x_first_name', $_POST['fname']);
+        	        $a->add_field('x_last_name', $_POST['lname']);
+	                $a->add_field('x_address', $_POST['address']);
+	                $a->add_field('x_city', $_POST['city']);
+        	        $a->add_field('x_state', $_POST['state_province']);
+	                $a->add_field('x_zip', $_POST['zip']);
+ 	                $a->add_field('x_email', $_POST['email']);
+
+			$a->add_field('x_method', 'CC');
+			$a->add_field('x_card_num', $_POST['cc_num']);   // test successful visa
+			$a->add_field('x_amount', $_POST['amount']);
+			$exp_date = $_POST['exp_month'] . $_POST['exp_year'];
+			$a->add_field('x_exp_date', $exp_date);    // march of 2008
+			$a->add_field('x_card_code', $_POST['cvv']);    // Card CAVV Security code
+
+			switch ($a->process()) {
+				case 1: // Accepted
+				$msg = "<font color=green>".$a->get_response_reason_text()."</font>";
+				$transactionID = $a->get_transaction_id();
+				//$payment = $this->record_payment($transactionID);
+				//if ($payment == "TRUE") {
+				//	$msg = "<font color=green>The payment of $$_POST[payment_amount] was processed.</font>";
+				//}
+				break;
+
+				case 2:  // Declined
+				$msg = "<font color=red>".$a->get_response_reason_text()."</font>";
+				break;
+
+				case 3: // Error
+				$msg = "<font color=red>".$a->get_response_reason_text()."</font>";
+				break;
+			}
+			$data['msg'] = $msg;
+			$template = "payment_complete.tpl";
+			$this->load_smarty($data,$template);
+
+                } else {
+                        $template = "error.tpl";
+                        $this->load_smarty(null,$template);
+                }
+	}
+
 	// logout
 	public function logout() {
 		session_destroy();
 		$template = "logout.tpl";
 		$this->load_smarty($null,$template);
 	}
+
+	// FUNCTIONS FROM LODGE SYSTEM
+
+	/*
+		The following functions below come from the lodge code base. The functions are not tied to but any logic
+		change in these functions should also be done in the lodge. The two systems can share code but each
+		id dependant from eachother. - Robert Saylor 3/3/2017
+
+	*/
+
+        public function get_invoice_amounts() {
+                $reservationID = $_SESSION['reservationID'];
+                $data['reservationID'] = $reservationID;
+                $data['date'] = date("m/d/Y");
+
+                $get_res_details 	= $this->reservation_details($reservationID);
+                $data['begin_date'] 	= $this->get_reservation_dates($reservationID,'ASC');
+                $data['end_date']       = $this->get_reservation_dates($reservationID,'DESC');
+                $data['nights']         = $this->get_reservation_nights($reservationID);
+                $data['rate']           = $this->get_base_rate($reservationID);
+                $data['line']           = $this->get_line_item_amounts($reservationID);
+                $data['payments']       = $this->get_payments_amount($reservationID);
+                $data['discounts']      = $this->get_discount_amount($reservationID);
+                $data['tents']          = $this->get_reservation_tents($reservationID);
+
+                $line = $data['line'];
+                $payments = $data['payments'];
+                $discount = $data['discounts'];
+
+
+                $debit                          = $this->get_transfer_debits($reservationID);
+                $deposit                        = $this->get_transfer_deposits($reservationID);
+
+                $rate = $data['rate'];
+                $rate = $rate - $discount;
+
+                // Commission
+                $sql = "
+                SELECT
+                        `s`.`commission`
+
+                FROM
+                        `reservations` r, `users` u
+
+                LEFT JOIN `reserve`.`reseller_agents` a ON `r`.`reseller_agentID` = `a`.`reseller_agentID`
+                LEFT JOIN `reserve`.`resellers` s ON `a`.`resellerID` = `s`.`resellerID`
+
+                WHERE
+                        `r`.`reservationID` = '$reservationID'
+                        AND `r`.`userID` = `u`.`id`
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        $commission = $row['commission'] * .01;
+                }
+                // get reseller info
+                $sql = "
+                SELECT
+                        `rs`.`resellerID`,
+                        `rs`.`company`
+
+                FROM
+                        `reservations` r,
+                        `reserve`.`resellers` rs
+
+                WHERE
+                        `r`.`reservationID` = '$reservationID'
+                        AND `r`.`resellerID` = `rs`.`resellerID`
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        if ($row['resellerID'] != "19") {
+                                $data['company'] = $row['company'];
+                        }
+                }
+
+                // get contact info
+                $sql = "
+                SELECT
+                        `c`.`first`,
+                        `c`.`last`,
+                        `c`.`address1`,
+                        `c`.`address2`,
+                        `c`.`city`,
+                        `c`.`province`,
+                        `c`.`state`,
+                        `c`.`zip`,
+                        `cc`.`country`
+
+
+                FROM
+                        `reservations` r, `reserve`.`contacts` c, `reserve`.`countries` cc
+
+                WHERE
+                        `r`.`reservationID` = '$reservationID'
+                        AND `r`.`contactID` = `c`.`contactID`
+                        AND `c`.`countryID` = `cc`.`countryID`
+
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        foreach ($row as $key=>$value) {
+                                $data[$key] = $value;
+                        }
+                }
+
+                $total_commission = $rate * $commission;
+
+                $amount_due = $rate + $line - $debit - $refund - $payments - $total_commission;
+                $data['amount_due'] = $amount_due;
+
+                if ($_GET['p'] == "1") {
+                        $data['print'] = "Yes";
+                }
+		return($data);
+        }
+
+        public function reservation_details($reservationID) {
+                // Tab 1
+
+                $sql = "
+                SELECT
+                        `u`.`first` AS 't1_first',
+                        `u`.`last` AS 't1_last',
+                        `u`.`email` AS 't1_email',
+                        DATE_FORMAT(`r`.`date_created`, '%m/%d/%Y') AS 't1_booked_date',
+                        `a`.`reseller_agentID`,
+                        `a`.`first` AS 'r_first',
+                        `a`.`last` AS 'r_last',
+                        `a`.`email` AS 'r_email',
+                        `s`.`resellerID`,
+                        `s`.`company`,
+                        `s`.`commission`,
+                        `c`.`contactID`,
+                        `c`.`first`,
+                        `c`.`last`,
+                        `c`.`email`
+                FROM
+                        `reservations` r, `users` u
+                LEFT JOIN `reserve`.`reseller_agents` a ON `r`.`reseller_agentID` = `a`.`reseller_agentID`
+                LEFT JOIN `reserve`.`resellers` s ON `a`.`resellerID` = `s`.`resellerID`
+                LEFT JOIN `reserve`.`contacts` c ON `r`.`contactID` = `c`.`contactID`
+
+                WHERE
+                        `r`.`reservationID` = '$reservationID'
+                        AND `r`.`userID` = `u`.`id`
+                ";
+                $result = $this->new_mysql($sql);
+                while($row = $result->fetch_assoc()) {
+                        foreach ($row as $key=>$value) {
+                                $data[$key] = $value;
+                        }       
+                        $data['begin_date'] = $this->get_reservation_dates($reservationID,'ASC',$null);
+                        $data['end_date']       = $this->get_reservation_dates($reservationID,'DESC',$null);
+                        $data['nights']         = $this->get_reservation_nights($reservationID);
+                }       
+                return $data;
+        }       
+
+
+        public function get_base_rate($reservationID) {
+                // get nightly rate
+                $arr[] = $this->dollars($reservationID);
+	        foreach ($arr as $key) {
+        	        foreach ($key as $key2=>$value2) {
+                	        $data[$key2] = $value2;
+	                }
+	        }
+	        $data['tents'] = $this->get_reservation_tents($reservationID);
+        	$rate = (($data['nightly_rate'] + $data['child1_rate'] + $data['child2_rate']) * $data['nights']) * $data['tents'];
+	        return $rate;
+        }
+
+        public function get_line_item_amounts($reservationID) {
+                $line = "0";
+                $sql = "
+                SELECT
+                        `c`.`first`,
+                        `c`.`last`,
+                        `l`.`title`,
+                        `l`.`price`,
+                        `lib`.`id`
+
+                FROM
+                        `lodge_res`.`line_item_billing` lib,
+                        `reserve`.`contacts` c,
+                        `lodge_res`.`line_items` l
+
+                WHERE
+                        `lib`.`reservationID` = '$reservationID'
+                        AND `lib`.`line_item_id` = `l`.`id`
+                        AND `lib`.`contactID` = `c`.`contactID`
+
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row=$result->fetch_assoc()) {
+                        $line = $line + $row['price'];
+                }
+                return $line;
+        }
+
+
+        public function get_payments_amount($reservationID) {
+                $payments = "0";
+                $sql = "
+                SELECT
+                        DATE_FORMAT(`p`.`payment_date`, '%m/%d/%Y') AS 'payment_date',
+                        IF(`p`.`transactionID` != '',`p`.`transactionID`,'N/A') AS 'transactionID',
+                        IF(`p`.`check_number` != '', `p`.`check_number`,'N/A') AS 'check_number',
+                        `p`.`payment_type`,
+                        `p`.`amount`,
+                        `p`.`id`
+
+                FROM
+                        `payments` p
+
+                WHERE
+                        `p`.`reservationID` = '$reservationID'
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        $payments = $payments + $row['amount'];
+                }
+                return $payments;
+        }
+
+
+        public function get_discount_amount($reservationID) {
+                $discount = "0";
+                $sql = "
+                SELECT
+                        `gdr`.`reason`,
+                        `d`.`id`,
+                        `d`.`amount`,
+                        DATE_FORMAT(`d`.`date_added`, '%m/%d/%Y') AS 'date_added'
+
+                FROM
+                        `discounts` d,
+                        `general_discount_reason` gdr
+
+                WHERE
+                        `d`.`reservationID` = '$reservationID'
+                        AND `d`.`general_discount_reasonID` = `gdr`.`id`
+
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        $discount = $discount + $row['amount'];
+                }
+                return $discount;
+        }
+
+
+        public function get_reservation_tents($reservationID) {
+                $sql = "
+                SELECT
+                        `i`.*
+
+                FROM
+                        `beds` b, `inventory` i
+                
+                WHERE
+                        `b`.`reservationID` = '$reservationID'
+                        AND `b`.`inventoryID` = `i`.`inventoryID`
+
+                GROUP BY `i`.`roomID`
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        $counter++;
+                }
+                return $counter;
+        }
+
+        public function get_transfer_debits($reservationID) {
+                $debit = "0";
+                $sql = "SELECT `id`,`type`,`detail`,`referral_reservationID`,`amount` FROM `transfers` WHERE `reservationID` = '$reservationID' AND `detail` = 'Debit'";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        $debit = $debit + $row['amount'];
+                }
+                return $debit;
+        }
+
+        public function get_transfer_deposits($reservationID) {
+                $deposit = "0";
+                $sql = "SELECT `id`,`type`,`detail`,`referral_reservationID`,`amount` FROM `transfers` WHERE `reservationID` = '$reservationID' AND `detail` = 'Deposit'";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        $deposit = $deposit + $row['amount'];
+                }
+                return $deposit;
+        }
+
+        public function dollars($reservationID) {
+                $sql = "
+                SELECT
+                        `i`.`nightly_rate`,
+                        `r`.`child1_age`,
+                        `r`.`child2_age`
+
+                FROM
+                        `beds` b, `inventory` i, `reservations` r
+
+                WHERE
+                        `b`.`reservationID` = '$reservationID'
+                        AND `b`.`inventoryID` = `i`.`inventoryID`
+                        AND `r`.`reservationID` = '$reservationID'
+
+                LIMIT 1
+                ";
+                $result = $this->new_mysql($sql);
+                while ($row = $result->fetch_assoc()) {
+                        $nightly_rate = $row['nightly_rate'];
+                        $child1_age = $row['child1_age'];
+                        $child2_age = $row['child2_age'];
+                }
+                $nights = $this->get_reservation_nights($reservationID);
+
+                $adults = $nightly_rate * $nights;
+
+                if ($child1_age > 0) {
+                        $age1 = $this->child_age_map($child1_age);
+                        $fee = $this->child_age_fee($child1_age);
+                        @$child_amount1 = ($nightly_rate/2)/$fee;
+                }
+
+                if ($child2_age > 0) {
+                        $age2 = $this->child_age_map($child2_age);
+                        $fee = $this->child_age_fee($child2_age);
+                        @$child_amount2 = ($nightly_rate/2)/$fee;
+                }
+
+                $total = $adults + $child_amount1 + $child_amount2;
+
+                $data['adults_rate'] = $adults;
+                $data['nightly_rate'] = $nightly_rate;
+                $data['child1_rate'] = $child_amount1;
+                $data['child1_age'] = $age1;
+                $data['child2_rate'] = $child_amount2;
+                $data['child2_age'] = $age2;
+                $data['nights'] = $nights;
+
+                return($data);
+        }
+
+        public function child_age_map($value) {
+                switch ($value) {
+                        case "1":
+                        $display = "0-6 years";
+                        break;
+                        case "2":
+                        $display = "7-15 years";
+                        break;
+                        case "3":
+                        $display = "16+ years";
+                        break;
+                }
+                return $display;
+        }
+
+        public function child_age_fee($value) {
+                switch ($value) {
+                        case "1":
+                                $fee = "0"; // 0%
+                        break;
+
+                        case "2":
+                                $fee = "2"; // 50%
+                        break;
+
+                        case "3":
+                                $fee = "1"; // 100%
+                        break;
+                }
+                return $fee;
+        }
+
 
 // end class
 }

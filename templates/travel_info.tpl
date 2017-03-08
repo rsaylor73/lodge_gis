@@ -159,8 +159,9 @@
                                 <div class="col-sm-1">
 					{if $departure_airport5 eq ""}
 					<input type="button" 
-	                                {literal}onclick="document.getElementById('dd5').style.display='block';"{/literal} value="Add" class="btn btn-info"></div>
+	                                {literal}onclick="document.getElementById('dd5').style.display='block';"{/literal} value="Add" class="btn btn-info">
 					{/if}
+				</div>
                         </div>   
 
                         <div class="row top-buffer" id="dd5" {if $departure_airport5 eq ""}style="display:none"{/if}>

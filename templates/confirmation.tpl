@@ -13,7 +13,7 @@
                         <form action="/update_confirmation" method="post">
 
                         <!-- heading -->
-                        <div class="col-sm-12">
+                        <div class="col-sm-12 top-buffer">
                         <b>Online Application and Waiver Form - Confirmation (Step {$step} of {$max})</b><br>
                         <h2>Guest Information</h2>
                         </div>
@@ -98,15 +98,18 @@
                                         <label for="preferred_name">Preferred Name:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="preferred_name" id="preferred_name" value="{$preferred_name}" class="form-control" {$readonly}>
+                                        {$preferred_name}
                                 </div>
 
                                 <div class="col-sm-3">
-                                        <label for="donottext" class="col-sm-3 control-label">Text Notifications:</label>
+                                        <label for="donottext">Text Notifications:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="checkbox" name="donottext" id="donottext" {$donottext} value="checked" {$readonly}> Check if you <b>DO NOT</b> wish to
-                                        receive text notifications about your vacation.
+					{if $donottext eq "checked"}
+						No
+					{else}
+						Yes
+					{/if}
                                 </div>
                         </div>
 
@@ -115,23 +118,13 @@
                                 <div class="col-sm-3">
                                         <label for="gender">Gender:</label>
                                 </div>
-                                <div class="col-sm-3">
-                                        <select name="gender" id="gender" class="form-control" required {$readonly}>
-                                        {if $gender eq ""}
-                                                <option selected value="">--Select--</option>
-                                                <option>male</option>
-                                                <option>female</option>
-                                        {else}
-                                                <option selected>{$gender}</option>
-                                        {/if}
-                                        </select>
-                                </div>
+                                <div class="col-sm-3">{$gender}</div>
 
                                 <div class="col-sm-3">
                                         <label for="email">Email:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="email" name="email" id="email" value="{$email}" class="form-control" required {$readonly}>
+                                        {$email}
                                 </div>
                         </div>
                         <!-- row 8-->
@@ -140,7 +133,7 @@
                                         <label for="dob">Date Of Birth:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="dob" id="dob" value="{$dob}" class="form-control" {$readonly}>
+                                        {$dob}
                                 </div>
 
                                 <div class="col-sm-6">&nbsp;</div>
@@ -153,14 +146,14 @@
                                         <label for="address1">Street Address:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="address1" id="address1" value="{$address1}" required class="form-control" {$readonly}>
+                                        {$address1}
                                 </div>
 
                                 <div class="col-sm-3">
                                         <label for="address2">Apartment/Building:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="address2" id="address2" value="{$address2}" class="form-control" {$readonly}>
+                                        {$address2}
                                 </div>
                         </div>
 
@@ -170,14 +163,14 @@
                                         <label for="city">City:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="city" id="city" value="{$city}" class="form-control" {$readonly}>
+                                        {$city}
                                 </div>
 
                                 <div class="col-sm-3">
                                         <label for="province">Province/Territory:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="province" id="province" value="{$province}" class="form-control" {$readonly}>
+                                        {$province}
                                 </div>
                         </div>
                         <!-- row 13 -->
@@ -186,16 +179,14 @@
                                         <label for="state">State:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <select name="state" id="state" class="form-control" {$readonly}>
                                         {$state}
-                                        </select>
                                 </div>
 
                                 <div class="col-sm-3">
                                         <label for="zip">Zip:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="zip" value="{$zip}" id="zip" class="form-control" {$readonly}>
+                                        {$zip}
                                 </div>
                         </div>
 
@@ -205,9 +196,7 @@
                                         <label for="country">Country:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <select name="country" id="country" required class="form-control" {$readonly}>
                                         {$country}
-                                        </select>
                                 </div>
                                 <div class="col-sm-6">&nbsp;</div>
                         </div>
@@ -225,16 +214,14 @@
                                         <label for="nationality_countryID">Citizenship:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <select name="nationality_countryID" id="nationality_countryID" required class="form-control" {$readonly}>
                                         {$nationality_country}
-                                        </select>
                                 </div>
 
                                 <div class="col-sm-3">
                                         <label for="passport_number">Passport #:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="passport_number" id="passport_number" value="{$passport_number}" class="form-control" {$readonly}>
+                                        {$passport_number}
                                 </div>
                         </div>
 
@@ -244,27 +231,427 @@
                                         <label for="passport_exp">Passport Expiration:</label>
                                 </div>
                                 <div class="col-sm-3">
-                                        <input type="text" name="passport_exp" id="passport_exp" value="{$passport_exp}" class="form-control" {$readonly}>
+                                        {$passport_exp}
                                 </div>
 
                                 <div class="col-sm-6">&nbsp;</div>
                         </div>
 
 
+			<!-- emergency contact -->
 
+                        <!-- heading -->
+                        <div class="col-sm-12 top-buffer">
+                        <h2>Primary Emergency Contact Information</h2>
+                        </div>
 
-
-                        <!-- submit -->
+                        <br><br><br>
+                        <!-- row 1 -->
                         <div class="row top-buffer">
-                                <div class="col-sm-12">
-                                        {if $readonly eq "readonly"}
-                                                <h3>This form has already been submitted.</h3>
-                                        {else}
-                                                <input type="submit" value="Submit Information to Aggressor Fleet" class="btn btn-success">
-                                        {/if}
+                                <div class="col-sm-3">
+                                        <label for="title">First Name:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$firstA}
+                                </div>
+
+                                <div class="col-sm-3">
+                                        <label for="occupation">Address:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$address1A}
+                                </div>
+                        </div>
+                        <!-- row 2 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Last Name:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$lastA}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">Appartment/Unit:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$address2A}
+                                </div>
+                        </div>
+                        <!-- row 3 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Relationship:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$relationshipA}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">City:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$cityA}
+                                </div>
+                        </div>
+                        <!-- row 4 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Phone (Home):</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$phone_homeA}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">State (US only):</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$stateA}
+                                </div>
+                        </div>
+                        <!-- row 5 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Phone (Work):</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$phone_workA}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">Zip:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$zipA}
                                 </div>
                         </div>
 
+                        <!-- row 6 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Phone (Mobile):</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$phone_mobileA}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">Country:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$countryA}
+                                </div>
+                        </div>
+                        <!-- row 7 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Email:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$emailA}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation"></label>
+                                </div>
+                                <div class="col-sm-3">
+                                        <!-- blank -->
+                                </div>
+                        </div>
+
+                        <!-- heading 2 -->
+                        <div class="col-sm-12 top-buffer">
+                        <h2>Secondary Emergency Contact Information</h2>
+                        </div>
+
+                        <!-- row 1 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">First Name:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$firstB}
+                                </div>
+
+                                <div class="col-sm-3">
+                                        <label for="occupation">Address:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$address1B}
+                                </div>
+                        </div>
+                        <!-- row 2 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Last Name:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$lastB}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">Appartment/Unit:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$address2B}
+                                </div>
+                        </div>
+                        <!-- row 3 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Relationship:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$relationshipB}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">City:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$cityB}
+                                </div>
+                        </div>
+                        <!-- row 4 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Phone (Home):</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$phone_homeB}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">State (US only):</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$stateB}
+                                </div>
+                        </div>
+                        <!-- row 5 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Phone (Work):</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$phone_workB}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">Zip:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$zipA}
+                                </div>
+                        </div>
+                        <!-- row 6 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Phone (Mobile):</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$phone_mobileB}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation">Country:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$countryB}
+                                </div>
+                        </div>
+                        <!-- row 7 -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-3">
+                                        <label for="title">Email:</label>
+                                </div>
+                                <div class="col-sm-3">
+                                        {$emailB}
+                                </div>
+                                <div class="col-sm-3">
+                                        <label for="occupation"></label>
+                                </div>
+                                <div class="col-sm-3">
+                                        <!-- blank -->
+                                </div>
+                        </div>
+
+			<!-- diet -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+                                        <h2>Dietary Restrictions:</h2>
+                                </div>
+                        </div>
+
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+					{if $request eq ""}
+						None
+					{else}
+						{$request}
+					{/if}
+                                </div>
+                        </div>
+
+			<!-- trip insurance -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+                                        <h2>Trip Insurance:</h2>
+                                </div>
+                        </div>
+
+                        {if $trip_company ne ""}
+                        <div class="row top-buffer">
+				<div class="col-sm-3">
+					<label>Insurance Company:</label>
+				</div>
+				<div class="col-sm-3">
+					{$trip_company}
+				</div>
+				<div class="col-sm-3">
+					<label>Policy #</label>
+				</div>
+				<div class="col-sm-3">
+					{$trip_policy}
+				</div>
+			</div>
+                        <div class="row top-buffer">
+				<div class="col-sm-3">
+					<label>Date Issued:</label>
+				</div>
+				<div class="col-sm-3">
+					{$date_issued}
+				</div>
+			</div>
+			{else}
+                        <div class="row top-buffer">
+				<div class="col-sm-12">
+					Trip insurance was declined.
+				</div>
+			</div>
+			{/if}
+
+			<!-- Travel Info -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+					<h2>Travel Info</h2>
+				</div>
+			</div>
+
+                        <!-- Arrival -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+                                        <b>ARRIVAL INFORMATION (before your trip)</b><br>
+                                </div>
+                        </div>
+
+
+                        <div class="row top-buffer">
+                                <div class="col-sm-3"><b>Arrival Airport</b></div>
+                                <div class="col-sm-3"><b>Airline</b></div>
+                                <div class="col-sm-3"><b>Flight #</b></div>
+                                <div class="col-sm-3"><b>Arrival Date & Time</b></div>
+                        </div>
+
+                        <div class="row top-buffer" id="aa1">
+                                <div class="col-sm-3">{$arrival_airport1}</div>
+                                <div class="col-sm-3">{$arrival_airline1}</div>
+                                <div class="col-sm-3">{$arrival_flight1}</div>
+                                <div class="col-sm-3">{$arrival_date_time1}</div>
+                        </div>
+
+                        <div class="row top-buffer" id="aa2" {if $arrival_airport2 eq ""}style="display:none"{/if}>
+                                <div class="col-sm-3">{$arrival_airport2}</div>
+                                <div class="col-sm-3">{$arrival_airline2}</div>
+                                <div class="col-sm-3">{$arrival_flight2}</div>
+                                <div class="col-sm-3">{$arrival_date_time2}</div>
+                        </div>
+                        <div class="row top-buffer" id="aa3" {if $arrival_airport3 eq ""}style="display:none"{/if}>
+                                <div class="col-sm-3">{$arrival_airport3}</div>
+                                <div class="col-sm-3">{$arrival_airline3}</div>
+                                <div class="col-sm-3">{$arrival_flight3}</div>
+                                <div class="col-sm-3">{$arrival_date_time3}</div>
+                        </div>
+
+                        <div class="row top-buffer" id="aa4" {if $arrival_airport4 eq ""}style="display:none"{/if}>
+                                <div class="col-sm-3">{$arrival_airport4}</div>
+                                <div class="col-sm-3">{$arrival_airline4}</div>
+                                <div class="col-sm-3">{$arrival_flight4}</div>
+                                <div class="col-sm-3">{$arrival_date_time4}</div>
+                        </div>
+
+                        <div class="row top-buffer" id="aa5" {if $arrival_airport5 eq ""}style="display:none"{/if}>
+                                <div class="col-sm-3">{$arrival_airport5}</div>
+                                <div class="col-sm-3">{$arrival_airline5}</div>
+                                <div class="col-sm-3">{$arrival_flight5}</div>
+                                <div class="col-sm-3">{$arrival_date_time5}</div>
+                        </div>
+
+                        <!-- Departure -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+                                        <b>DEPARTURE INFORMATION (after your trip)</b><br>
+                                </div>
+                        </div>
+                        <div class="row top-buffer">
+                                <div class="col-sm-3"><b>Departure Airport</b></div>
+                                <div class="col-sm-3"><b>Airline</b></div>
+                                <div class="col-sm-3"><b>Flight #</b></div>
+                                <div class="col-sm-3"><b>Departure Date & Time</b></div>
+                        </div>
+
+                        <div class="row top-buffer" id="dd1">
+                                <div class="col-sm-3">{$departure_airport1}</div>
+                                <div class="col-sm-3">{$departure_airline1}</div>
+                                <div class="col-sm-3">{$departure_flight1}</div>
+                                <div class="col-sm-3">{$departure_date_time1}</div>
+                        </div>
+
+                        <div class="row top-buffer" id="dd2" {if $departure_airport2 eq ""}style="display:none"{/if}>
+                                <div class="col-sm-3">{$departure_airport2}</div>
+                                <div class="col-sm-3">{$departure_airline2}</div>
+                                <div class="col-sm-3">{$departure_flight2}</div>
+                                <div class="col-sm-3">{$departure_date_time2}</div>
+                        </div>
+
+                        <div class="row top-buffer" id="dd3" {if $departure_airport3 eq ""}style="display:none"{/if}>
+                                <div class="col-sm-3">{$departure_airport3}</div>
+                                <div class="col-sm-3">{$departure_airline3}</div>
+                                <div class="col-sm-3">{$departure_flight3}</div>
+                                <div class="col-sm-3">{$departure_date_time3}</div>
+                        </div>
+                        <div class="row top-buffer" id="dd4" {if $departure_airport4 eq ""}style="display:none"{/if}>
+                                <div class="col-sm-3">{$departure_airport4}</div>
+                                <div class="col-sm-3">{$departure_airline4}</div>
+                                <div class="col-sm-3">{$departure_flight4}</div>
+                                <div class="col-sm-3">{$departure_date_time4}</div>
+                        </div>
+
+                        <div class="row top-buffer" id="dd5" {if $departure_airport5 eq ""}style="display:none"{/if}>
+                                <div class="col-sm-3">{$departure_airport5}</div>
+                                <div class="col-sm-3">{$departure_airline5}</div>
+                                <div class="col-sm-3">{$departure_flight5}</div>
+                                <div class="col-sm-3">{$departure_date_time5}</div>
+                        </div>
+
+                        <!-- Hotel -->
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+                                        <b>Arrival Hotel</b><br>
+                                </div>
+                        </div>
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+                                        {$hotel_arrival}
+                                </div>
+                        </div>
+
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+                                        <b>Departure Hotel</b><br>
+                                </div>
+                        </div>
+                        <div class="row top-buffer">
+                                <div class="col-sm-12">
+                                        {$hotel_departure}
+                                </div>
+                        </div>
+
+
+
+
+
+			<!-- end -->
                         </form>
 
                 </div>
